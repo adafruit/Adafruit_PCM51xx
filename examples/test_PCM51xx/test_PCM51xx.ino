@@ -178,9 +178,9 @@ void setup() {
       break;
   }
   
-  // Set volume to 6dB on both channels
+  // Set volume to -6dB on both channels
   Serial.println(F("Setting volume"));
-  pcm.setVolumeDB(6.0, 6.0);
+  pcm.setVolumeDB(-6.0, -6.0);
   
   // Read and display current volume
   float leftVol, rightVol;
