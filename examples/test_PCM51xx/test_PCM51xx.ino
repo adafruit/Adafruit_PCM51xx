@@ -13,6 +13,7 @@
 
 Adafruit_PCM51xx pcm;
 
+
 void setup() {
   Serial.begin(115200);
   while (!Serial) delay(10);
@@ -25,7 +26,121 @@ void setup() {
   }
   
   Serial.println(F("PCM51xx initialized successfully!"));
+
+  // Set I2S format to I2S
+  Serial.println(F("Setting I2S format"));
+  pcm.setI2SFormat(PCM51XX_I2S_FORMAT_I2S);
   
+  // Read and display current format
+  pcm51xx_i2s_format_t format = pcm.getI2SFormat();
+  Serial.print(F("Current I2S format: "));
+  switch (format) {
+    case PCM51XX_I2S_FORMAT_I2S:
+      Serial.println(F("I2S"));
+      break;
+    case PCM51XX_I2S_FORMAT_TDM:
+      Serial.println(F("TDM/DSP"));
+      break;
+    case PCM51XX_I2S_FORMAT_RTJ:
+      Serial.println(F("Right Justified"));
+      break;
+    case PCM51XX_I2S_FORMAT_LTJ:
+      Serial.println(F("Left Justified"));
+      break;
+    default:
+      Serial.println(F("Unknown"));
+      break;
+  }
+  
+  // Set I2S word length to 32-bit
+  Serial.println(F("Setting I2S word length"));
+  pcm.setI2SSize(PCM51XX_I2S_SIZE_16BIT);
+  
+  // Read and display current word length
+  pcm51xx_i2s_size_t size = pcm.getI2SSize();
+  Serial.print(F("Current I2S word length: "));
+  switch (size) {
+    case PCM51XX_I2S_SIZE_16BIT:
+      Serial.println(F("16 bits"));
+      break;
+    case PCM51XX_I2S_SIZE_20BIT:
+      Serial.println(F("20 bits"));
+      break;
+    case PCM51XX_I2S_SIZE_24BIT:
+      Serial.println(F("24 bits"));
+      break;
+    case PCM51XX_I2S_SIZE_32BIT:
+      Serial.println(F("32 bits"));
+      break;
+    default:
+      Serial.println(F("Unknown"));
+      break;
+  }
+
+  // Set error detection bits
+  if (!pcm.ignoreFSDetect(true) || !pcm.ignoreBCKDetect(true) || !pcm.ignoreSCKDetect(true) || 
+      !pcm.ignoreClockHalt(true) || !pcm.ignoreClockMissing(true) || !pcm.disableClockAutoset(false) || 
+      !pcm.ignorePLLUnlock(true)) {
+    Serial.println(F("Error detection failed to configure"));
+  }
+  
+  // Set PLL reference to BCK
+  Serial.println(F("Setting PLL reference"));
+  pcm.setPLLReference(PCM51XX_PLL_REF_BCK);
+  
+  // Read and display current PLL reference
+  pcm51xx_pll_ref_t pllRef = pcm.getPLLReference();
+  Serial.print(F("Current PLL reference: "));
+  switch (pllRef) {
+    case PCM51XX_PLL_REF_SCK:
+      Serial.println(F("SCK"));
+      break;
+    case PCM51XX_PLL_REF_BCK:
+      Serial.println(F("BCK"));
+      break;
+    case PCM51XX_PLL_REF_GPIO:
+      Serial.println(F("GPIO"));
+      break;
+    default:
+      Serial.println(F("Unknown"));
+      break;
+  }
+
+  // Set DAC clock source to PLL
+  Serial.println(F("Setting DAC source"));
+  pcm.setDACSource(PCM51XX_DAC_CLK_PLL);
+  
+  // Read and display current DAC source
+  pcm51xx_dac_clk_src_t dacSource = pcm.getDACSource();
+  Serial.print(F("Current DAC source: "));
+  switch (dacSource) {
+    case PCM51XX_DAC_CLK_MASTER:
+      Serial.println(F("Master clock (auto-select)"));
+      break;
+    case PCM51XX_DAC_CLK_PLL:
+      Serial.println(F("PLL clock"));
+      break;
+    case PCM51XX_DAC_CLK_SCK:
+      Serial.println(F("SCK clock"));
+      break;
+    case PCM51XX_DAC_CLK_BCK:
+      Serial.println(F("BCK clock"));
+      break;
+    default:
+      Serial.println(F("Unknown"));
+      break;
+  }  
+
+  // Test auto mute (default turn off)
+  Serial.println(F("Setting auto mute"));
+  pcm.setAutoMute(false);
+  
+  // Read and display current auto mute status
+  bool autoMuteEnabled = pcm.getAutoMute();
+  Serial.print(F("Auto mute: "));
+  Serial.println(autoMuteEnabled ? F("Enabled") : F("Disabled"));
+  
+
   // Check DSP boot status and power state
   Serial.print(F("DSP boot done: "));
   Serial.println(pcm.getDSPBootDone() ? F("Yes") : F("No"));
@@ -63,114 +178,9 @@ void setup() {
       break;
   }
   
-  // Set PLL reference to BCK
-  Serial.println(F("Setting PLL reference"));
-  pcm.setPLLReference(PCM51XX_PLL_REF_BCK);
-  
-  // Read and display current PLL reference
-  pcm51xx_pll_ref_t pllRef = pcm.getPLLReference();
-  Serial.print(F("Current PLL reference: "));
-  switch (pllRef) {
-    case PCM51XX_PLL_REF_SCK:
-      Serial.println(F("SCK"));
-      break;
-    case PCM51XX_PLL_REF_BCK:
-      Serial.println(F("BCK"));
-      break;
-    case PCM51XX_PLL_REF_GPIO:
-      Serial.println(F("GPIO"));
-      break;
-    default:
-      Serial.println(F("Unknown"));
-      break;
-  }
-  
-  // Set DAC clock source to PLL
-  Serial.println(F("Setting DAC source"));
-  pcm.setDACSource(PCM51XX_DAC_CLK_PLL);
-  
-  // Read and display current DAC source
-  pcm51xx_dac_clk_src_t dacSource = pcm.getDACSource();
-  Serial.print(F("Current DAC source: "));
-  switch (dacSource) {
-    case PCM51XX_DAC_CLK_MASTER:
-      Serial.println(F("Master clock (auto-select)"));
-      break;
-    case PCM51XX_DAC_CLK_PLL:
-      Serial.println(F("PLL clock"));
-      break;
-    case PCM51XX_DAC_CLK_SCK:
-      Serial.println(F("SCK clock"));
-      break;
-    case PCM51XX_DAC_CLK_BCK:
-      Serial.println(F("BCK clock"));
-      break;
-    default:
-      Serial.println(F("Unknown"));
-      break;
-  }
-  
-  // Set error detection bits
-  if (!pcm.ignoreFSDetect(true) || !pcm.ignoreBCKDetect(true) || !pcm.ignoreSCKDetect(true) || 
-      !pcm.ignoreClockHalt(true) || !pcm.ignoreClockMissing(true) || !pcm.disableClockAutoset(false) || 
-      !pcm.ignorePLLUnlock(true)) {
-    Serial.println(F("Error detection failed to configure"));
-  }
-  
-  // Set I2S format to I2S
-  Serial.println(F("Setting I2S format"));
-  pcm.setI2SFormat(PCM51XX_I2S_FORMAT_I2S);
-  
-  // Read and display current format
-  pcm51xx_i2s_format_t format = pcm.getI2SFormat();
-  Serial.print(F("Current I2S format: "));
-  switch (format) {
-    case PCM51XX_I2S_FORMAT_I2S:
-      Serial.println(F("I2S"));
-      break;
-    case PCM51XX_I2S_FORMAT_TDM:
-      Serial.println(F("TDM/DSP"));
-      break;
-    case PCM51XX_I2S_FORMAT_RTJ:
-      Serial.println(F("Right Justified"));
-      break;
-    case PCM51XX_I2S_FORMAT_LTJ:
-      Serial.println(F("Left Justified"));
-      break;
-    default:
-      Serial.println(F("Unknown"));
-      break;
-  }
-  
-  // Set I2S word length to 32-bit
-  Serial.println(F("Setting I2S word length"));
-  pcm.setI2SSize(PCM51XX_I2S_SIZE_32BIT);
-  
-  // Read and display current word length
-  pcm51xx_i2s_size_t size = pcm.getI2SSize();
-  Serial.print(F("Current I2S word length: "));
-  switch (size) {
-    case PCM51XX_I2S_SIZE_16BIT:
-      Serial.println(F("16 bits"));
-      break;
-    case PCM51XX_I2S_SIZE_20BIT:
-      Serial.println(F("20 bits"));
-      break;
-    case PCM51XX_I2S_SIZE_24BIT:
-      Serial.println(F("24 bits"));
-      break;
-    case PCM51XX_I2S_SIZE_32BIT:
-      Serial.println(F("32 bits"));
-      break;
-    default:
-      Serial.println(F("Unknown"));
-      break;
-  }
-  
-  
-  // Set volume to -6dB on both channels
+  // Set volume to 6dB on both channels
   Serial.println(F("Setting volume"));
-  pcm.setVolumeDB(-6.0, -6.0);
+  pcm.setVolumeDB(6.0, 6.0);
   
   // Read and display current volume
   float leftVol, rightVol;
@@ -180,40 +190,6 @@ void setup() {
   Serial.print(F("dB, Right: "));
   Serial.print(rightVol, 1);
   Serial.println(F("dB"));
-  
-  // Test auto mute (default turn off)
-  Serial.println(F("Setting auto mute"));
-  pcm.setAutoMute(false);
-  
-  // Read and display current auto mute status
-  bool autoMuteEnabled = pcm.getAutoMute();
-  Serial.print(F("Auto mute: "));
-  Serial.println(autoMuteEnabled ? F("Enabled") : F("Disabled"));
-  
-  // Configure GPIO5 to output PLL/4
-  Serial.println(F("Setting GPIO5 to output PLL/4"));
-  pcm.setGPIODirection(5, true);  // Set GPIO5 as output first
-  pcm.setGPIO5Output(PCM51XX_GPIO5_PLL_OUT_DIV4);
-  
-  // Read and display current GPIO5 setting
-  pcm51xx_gpio5_output_t gpio5Output = pcm.getGPIO5Output();
-  Serial.print(F("GPIO5 output: "));
-  switch (gpio5Output) {
-    case PCM51XX_GPIO5_OFF:
-      Serial.println(F("Off (low)"));
-      break;
-    case PCM51XX_GPIO5_PLL_LOCK:
-      Serial.println(F("PLL lock flag"));
-      break;
-    case PCM51XX_GPIO5_PLL_OUT_DIV4:
-      Serial.println(F("PLL Output/4"));
-      break;
-    default:
-      Serial.print(F("Other (0x"));
-      Serial.print(gpio5Output, HEX);
-      Serial.println(F(")"));
-      break;
-  }
   
 }
 
