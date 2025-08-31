@@ -28,7 +28,9 @@
 /*!
  * @brief Constructor for PCM51xx
  */
-Adafruit_PCM51xx::Adafruit_PCM51xx(void) {}
+Adafruit_PCM51xx::Adafruit_PCM51xx(void) { 
+  _page = 0xFF; // Initialize to invalid page to force first page select
+}
 
 /*!
  * @brief Destructor for PCM51xx
@@ -53,6 +55,12 @@ bool Adafruit_PCM51xx::begin(uint8_t i2c_addr, TwoWire *wire) {
   i2c_dev = new Adafruit_I2CDevice(i2c_addr, wire);
   
   if (!i2c_dev->begin()) {
+    return false;
+  }
+  
+  // Force page selection to be set initially
+  _page = 0xFF; // Invalid page to force selection
+  if (!selectPage(0)) {
     return false;
   }
   
@@ -607,10 +615,161 @@ bool Adafruit_PCM51xx::getAutoMute(void) {
 }
 
 /*!
- * @brief Set GPIO5 output selection
- * @param output GPIO5 output signal to select
+ * @brief Set mute state for both channels
+ * @param enable True to mute both channels, false to unmute
  * @return True if successful, false otherwise
  */
+bool Adafruit_PCM51xx::mute(bool enable) {
+  if (!selectPage(0)) {
+    return false;
+  }
+  
+  Adafruit_BusIO_Register mute_reg = 
+    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_MUTE, 1);
+  Adafruit_BusIO_RegisterBits rqml_bit = 
+    Adafruit_BusIO_RegisterBits(&mute_reg, 1, 4);
+  Adafruit_BusIO_RegisterBits rqmr_bit = 
+    Adafruit_BusIO_RegisterBits(&mute_reg, 1, 0);
+
+  // Set both left (bit 4) and right (bit 0) mute bits
+  if (!rqml_bit.write(enable ? 1 : 0)) {
+    return false;
+  }
+  
+  return rqmr_bit.write(enable ? 1 : 0);
+}
+
+/*!
+ * @brief Check if both channels are muted
+ * @return True if both channels are muted, false otherwise
+ */
+bool Adafruit_PCM51xx::isMuted(void) {
+  if (!selectPage(0)) {
+    return false;
+  }
+  
+  Adafruit_BusIO_Register mute_reg = 
+    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_MUTE, 1);
+  Adafruit_BusIO_RegisterBits rqml_bit = 
+    Adafruit_BusIO_RegisterBits(&mute_reg, 1, 4);
+  Adafruit_BusIO_RegisterBits rqmr_bit = 
+    Adafruit_BusIO_RegisterBits(&mute_reg, 1, 0);
+
+  // Both channels must be muted to return true
+  return (rqml_bit.read() == 1) && (rqmr_bit.read() == 1);
+}
+
+/*!
+ * @brief Enable or disable the PLL
+ * @param enable True to enable PLL, false to disable
+ * @return True if successful, false otherwise
+ */
+bool Adafruit_PCM51xx::enablePLL(bool enable) {
+  if (!selectPage(0)) {
+    return false;
+  }
+  
+  Adafruit_BusIO_Register pll_reg = 
+    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
+  Adafruit_BusIO_RegisterBits plle_bit = 
+    Adafruit_BusIO_RegisterBits(&pll_reg, 1, 0);
+
+  return plle_bit.write(enable ? 1 : 0);
+}
+
+/*!
+ * @brief Check if PLL is enabled
+ * @return True if PLL is enabled, false otherwise
+ */
+bool Adafruit_PCM51xx::isPLLEnabled(void) {
+  if (!selectPage(0)) {
+    return false;
+  }
+  
+  Adafruit_BusIO_Register pll_reg = 
+    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
+  Adafruit_BusIO_RegisterBits plle_bit = 
+    Adafruit_BusIO_RegisterBits(&pll_reg, 1, 0);
+
+  return plle_bit.read() == 1;
+}
+
+/*!
+ * @brief Check if PLL is locked
+ * @return True if PLL is locked, false otherwise
+ */
+bool Adafruit_PCM51xx::isPLLLocked(void) {
+  if (!selectPage(0)) {
+    return false;
+  }
+  
+  Adafruit_BusIO_Register pll_reg = 
+    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
+  Adafruit_BusIO_RegisterBits pllk_bit = 
+    Adafruit_BusIO_RegisterBits(&pll_reg, 1, 4);
+
+  return pllk_bit.read() == 0;  // 0 = locked, 1 = not locked
+}
+
+/*!
+ * @brief Enable or disable de-emphasis filter
+ * @param enable True to enable de-emphasis, false to disable
+ * @return True if successful, false otherwise
+ */
+bool Adafruit_PCM51xx::enableDeemphasis(bool enable) {
+  if (!selectPage(0)) {
+    return false;
+  }
+  
+  Adafruit_BusIO_Register deemphasis_reg = 
+    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DEEMPHASIS, 1);
+  Adafruit_BusIO_RegisterBits demp_bit = 
+    Adafruit_BusIO_RegisterBits(&deemphasis_reg, 1, 4);
+
+  return demp_bit.write(enable ? 1 : 0);
+}
+
+/*!
+ * @brief Check if de-emphasis filter is enabled
+ * @return True if de-emphasis is enabled, false otherwise
+ */
+bool Adafruit_PCM51xx::isDeemphasized(void) {
+  if (!selectPage(0)) {
+    return false;
+  }
+  
+  Adafruit_BusIO_Register deemphasis_reg = 
+    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DEEMPHASIS, 1);
+  Adafruit_BusIO_RegisterBits demp_bit = 
+    Adafruit_BusIO_RegisterBits(&deemphasis_reg, 1, 4);
+
+  return demp_bit.read() == 1;
+}
+
+/*!
+ * @brief Read digital state of GPIO pin
+ * @param pin GPIO pin number (1-6)
+ * @return True if pin is high, false if pin is low or invalid pin number
+ */
+bool Adafruit_PCM51xx::digitalRead(uint8_t pin) {
+  if (pin < 1 || pin > 6) {
+    return false;  // Invalid pin number
+  }
+  
+  if (!selectPage(0)) {
+    return false;
+  }
+  
+  Adafruit_BusIO_Register gpio_input_reg = 
+    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_GPIO_INPUT, 1);
+  Adafruit_BusIO_RegisterBits gpio_bit = 
+    Adafruit_BusIO_RegisterBits(&gpio_input_reg, 1, pin - 1);
+
+  return gpio_bit.read() == 1;
+}
+
+// TODO: GPIO functions - implement later
+/*
 bool Adafruit_PCM51xx::setGPIO5Output(pcm51xx_gpio5_output_t output) {
   if (!selectPage(0)) {
     return false;
@@ -624,10 +783,6 @@ bool Adafruit_PCM51xx::setGPIO5Output(pcm51xx_gpio5_output_t output) {
   return gpio5_bits.write((uint8_t)output);
 }
 
-/*!
- * @brief Get GPIO5 output selection
- * @return Current GPIO5 output selection
- */
 pcm51xx_gpio5_output_t Adafruit_PCM51xx::getGPIO5Output(void) {
   if (!selectPage(0)) {
     return PCM51XX_GPIO5_OFF;
@@ -641,12 +796,6 @@ pcm51xx_gpio5_output_t Adafruit_PCM51xx::getGPIO5Output(void) {
   return (pcm51xx_gpio5_output_t)gpio5_bits.read();
 }
 
-/*!
- * @brief Set GPIO direction (input/output)
- * @param gpio GPIO number (1-6)
- * @param output True for output, false for input
- * @return True if successful, false otherwise
- */
 bool Adafruit_PCM51xx::setGPIODirection(uint8_t gpio, bool output) {
   if (gpio < 1 || gpio > 6) {
     return false;
@@ -663,6 +812,7 @@ bool Adafruit_PCM51xx::setGPIODirection(uint8_t gpio, bool output) {
 
   return gpio_bit.write(output ? 1 : 0);
 }
+*/
 
 /*!
  * @brief Select register page
@@ -670,8 +820,16 @@ bool Adafruit_PCM51xx::setGPIODirection(uint8_t gpio, bool output) {
  * @return True if successful, false otherwise
  */
 bool Adafruit_PCM51xx::selectPage(uint8_t page) {
+  if (_page == page) {
+    return true; // Already on correct page, skip I2C write
+  }
+  
   Adafruit_BusIO_Register page_reg = 
     Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PAGE_SELECT, 1);
   
-  return page_reg.write(page);
+  if (page_reg.write(page)) {
+    _page = page; // Update cached page on successful write
+    return true;
+  }
+  return false;
 }

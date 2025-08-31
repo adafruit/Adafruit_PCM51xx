@@ -205,13 +205,27 @@ public:
   bool setAutoMute(bool enable);
   bool getAutoMute(void);
 
-  bool setGPIO5Output(pcm51xx_gpio5_output_t output);
-  pcm51xx_gpio5_output_t getGPIO5Output(void);
-  bool setGPIODirection(uint8_t gpio, bool output);
+  bool mute(bool enable);
+  bool isMuted(void);
+
+  bool enablePLL(bool enable);
+  bool isPLLEnabled(void);
+  bool isPLLLocked(void);
+
+  bool enableDeemphasis(bool enable);
+  bool isDeemphasized(void);
+
+  bool digitalRead(uint8_t pin);
+
+  // TODO: GPIO functions - implement later
+  // bool setGPIO5Output(pcm51xx_gpio5_output_t output);
+  // pcm51xx_gpio5_output_t getGPIO5Output(void);
+  // bool setGPIODirection(uint8_t gpio, bool output);
 
 private:
   bool selectPage(uint8_t page);
   Adafruit_I2CDevice *i2c_dev; ///< Pointer to I2C bus interface
+  uint8_t _page; ///< Current selected page (cached)
 };
 
 #endif

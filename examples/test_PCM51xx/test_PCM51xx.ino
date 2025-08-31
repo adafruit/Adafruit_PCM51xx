@@ -84,6 +84,15 @@ void setup() {
     Serial.println(F("Error detection failed to configure"));
   }
   
+  // Enable PLL
+  Serial.println(F("Enabling PLL"));
+  pcm.enablePLL(true);
+  
+  // Check PLL status
+  bool pllEnabled = pcm.isPLLEnabled();
+  Serial.print(F("PLL enabled: "));
+  Serial.println(pllEnabled ? F("Yes") : F("No"));
+  
   // Set PLL reference to BCK
   Serial.println(F("Setting PLL reference"));
   pcm.setPLLReference(PCM51XX_PLL_REF_BCK);
@@ -140,6 +149,14 @@ void setup() {
   Serial.print(F("Auto mute: "));
   Serial.println(autoMuteEnabled ? F("Enabled") : F("Disabled"));
   
+  // Test mute (default do not mute)
+  Serial.println(F("Setting mute"));
+  pcm.mute(false);
+  
+  // Read and display current mute status
+  bool muteEnabled = pcm.isMuted();
+  Serial.print(F("Mute: "));
+  Serial.println(muteEnabled ? F("Enabled") : F("Disabled"));
 
   // Check DSP boot status and power state
   Serial.print(F("DSP boot done: "));
@@ -177,6 +194,11 @@ void setup() {
       Serial.println(F("Unknown"));
       break;
   }
+  
+  // Check PLL lock status
+  bool pllLocked = pcm.isPLLLocked();
+  Serial.print(F("PLL locked: "));
+  Serial.println(pllLocked ? F("Yes") : F("No"));
   
   // Set volume to -6dB on both channels
   Serial.println(F("Setting volume"));
