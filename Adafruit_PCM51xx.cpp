@@ -28,7 +28,7 @@
 /*!
  * @brief Constructor for PCM51xx
  */
-Adafruit_PCM51xx::Adafruit_PCM51xx(void) { 
+Adafruit_PCM51xx::Adafruit_PCM51xx(void) {
   _page = 0xFF; // Initialize to invalid page to force first page select
 }
 
@@ -47,48 +47,48 @@ Adafruit_PCM51xx::~Adafruit_PCM51xx(void) {
  * @param wire Pointer to TwoWire instance (default is &Wire)
  * @return True if successful, false otherwise
  */
-bool Adafruit_PCM51xx::begin(uint8_t i2c_addr, TwoWire *wire) {
+bool Adafruit_PCM51xx::begin(uint8_t i2c_addr, TwoWire* wire) {
   if (i2c_dev) {
     delete i2c_dev;
   }
-  
+
   i2c_dev = new Adafruit_I2CDevice(i2c_addr, wire);
-  
+
   if (!i2c_dev->begin()) {
     return false;
   }
-  
+
   // Force page selection to be set initially
   _page = 0xFF; // Invalid page to force selection
   if (!selectPage(0)) {
     return false;
   }
-  
+
   // Put device into standby before reset operations
   if (!standby(true)) {
     return false;
   }
-  
+
   // Reset registers first
   if (!resetRegisters()) {
     return false;
   }
-  
+
   // Reset modules
   if (!resetModules()) {
     return false;
   }
-  
+
   // Make sure we're out of powerdown mode
   if (!powerdown(false)) {
     return false;
   }
-  
+
   // Make sure we're out of standby mode
   if (!standby(false)) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -100,11 +100,11 @@ bool Adafruit_PCM51xx::resetModules(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register reset_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_RESET, 1);
-  Adafruit_BusIO_RegisterBits rstm_bit = 
-    Adafruit_BusIO_RegisterBits(&reset_reg, 1, 4);
+
+  Adafruit_BusIO_Register reset_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_RESET, 1);
+  Adafruit_BusIO_RegisterBits rstm_bit =
+      Adafruit_BusIO_RegisterBits(&reset_reg, 1, 4);
 
   // Set the RSTM bit to initiate reset
   if (!rstm_bit.write(1)) {
@@ -119,7 +119,7 @@ bool Adafruit_PCM51xx::resetModules(void) {
     }
     delay(1);
   }
-  
+
   return false; // Timeout
 }
 
@@ -131,11 +131,11 @@ bool Adafruit_PCM51xx::resetRegisters(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register reset_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_RESET, 1);
-  Adafruit_BusIO_RegisterBits rstr_bit = 
-    Adafruit_BusIO_RegisterBits(&reset_reg, 1, 0);
+
+  Adafruit_BusIO_Register reset_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_RESET, 1);
+  Adafruit_BusIO_RegisterBits rstr_bit =
+      Adafruit_BusIO_RegisterBits(&reset_reg, 1, 0);
 
   // Set the RSTR bit to initiate reset
   if (!rstr_bit.write(1)) {
@@ -150,7 +150,7 @@ bool Adafruit_PCM51xx::resetRegisters(void) {
     }
     delay(1);
   }
-  
+
   return false; // Timeout
 }
 
@@ -163,11 +163,11 @@ bool Adafruit_PCM51xx::standby(bool enable) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register standby_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_STANDBY, 1);
-  Adafruit_BusIO_RegisterBits rqst_bit = 
-    Adafruit_BusIO_RegisterBits(&standby_reg, 1, 4);
+
+  Adafruit_BusIO_Register standby_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_STANDBY, 1);
+  Adafruit_BusIO_RegisterBits rqst_bit =
+      Adafruit_BusIO_RegisterBits(&standby_reg, 1, 4);
 
   return rqst_bit.write(enable ? 1 : 0);
 }
@@ -180,11 +180,11 @@ bool Adafruit_PCM51xx::isStandby(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register standby_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_STANDBY, 1);
-  Adafruit_BusIO_RegisterBits rqst_bit = 
-    Adafruit_BusIO_RegisterBits(&standby_reg, 1, 4);
+
+  Adafruit_BusIO_Register standby_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_STANDBY, 1);
+  Adafruit_BusIO_RegisterBits rqst_bit =
+      Adafruit_BusIO_RegisterBits(&standby_reg, 1, 4);
 
   return rqst_bit.read() == 1;
 }
@@ -198,11 +198,11 @@ bool Adafruit_PCM51xx::powerdown(bool enable) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register standby_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_STANDBY, 1);
-  Adafruit_BusIO_RegisterBits rqpd_bit = 
-    Adafruit_BusIO_RegisterBits(&standby_reg, 1, 0);
+
+  Adafruit_BusIO_Register standby_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_STANDBY, 1);
+  Adafruit_BusIO_RegisterBits rqpd_bit =
+      Adafruit_BusIO_RegisterBits(&standby_reg, 1, 0);
 
   return rqpd_bit.write(enable ? 1 : 0);
 }
@@ -215,11 +215,11 @@ bool Adafruit_PCM51xx::isPowerdown(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register standby_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_STANDBY, 1);
-  Adafruit_BusIO_RegisterBits rqpd_bit = 
-    Adafruit_BusIO_RegisterBits(&standby_reg, 1, 0);
+
+  Adafruit_BusIO_Register standby_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_STANDBY, 1);
+  Adafruit_BusIO_RegisterBits rqpd_bit =
+      Adafruit_BusIO_RegisterBits(&standby_reg, 1, 0);
 
   return rqpd_bit.read() == 1;
 }
@@ -233,11 +233,11 @@ bool Adafruit_PCM51xx::setI2SFormat(pcm51xx_i2s_format_t format) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register i2s_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_I2S_CONFIG, 1);
-  Adafruit_BusIO_RegisterBits format_bits = 
-    Adafruit_BusIO_RegisterBits(&i2s_reg, 2, 4);
+
+  Adafruit_BusIO_Register i2s_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_I2S_CONFIG, 1);
+  Adafruit_BusIO_RegisterBits format_bits =
+      Adafruit_BusIO_RegisterBits(&i2s_reg, 2, 4);
 
   return format_bits.write((uint8_t)format);
 }
@@ -250,11 +250,11 @@ pcm51xx_i2s_format_t Adafruit_PCM51xx::getI2SFormat(void) {
   if (!selectPage(0)) {
     return PCM51XX_I2S_FORMAT_I2S;
   }
-  
-  Adafruit_BusIO_Register i2s_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_I2S_CONFIG, 1);
-  Adafruit_BusIO_RegisterBits format_bits = 
-    Adafruit_BusIO_RegisterBits(&i2s_reg, 2, 4);
+
+  Adafruit_BusIO_Register i2s_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_I2S_CONFIG, 1);
+  Adafruit_BusIO_RegisterBits format_bits =
+      Adafruit_BusIO_RegisterBits(&i2s_reg, 2, 4);
 
   return (pcm51xx_i2s_format_t)format_bits.read();
 }
@@ -268,11 +268,11 @@ bool Adafruit_PCM51xx::setI2SSize(pcm51xx_i2s_size_t size) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register i2s_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_I2S_CONFIG, 1);
-  Adafruit_BusIO_RegisterBits size_bits = 
-    Adafruit_BusIO_RegisterBits(&i2s_reg, 2, 0);
+
+  Adafruit_BusIO_Register i2s_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_I2S_CONFIG, 1);
+  Adafruit_BusIO_RegisterBits size_bits =
+      Adafruit_BusIO_RegisterBits(&i2s_reg, 2, 0);
 
   return size_bits.write((uint8_t)size);
 }
@@ -285,11 +285,11 @@ pcm51xx_i2s_size_t Adafruit_PCM51xx::getI2SSize(void) {
   if (!selectPage(0)) {
     return PCM51XX_I2S_SIZE_24BIT;
   }
-  
-  Adafruit_BusIO_Register i2s_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_I2S_CONFIG, 1);
-  Adafruit_BusIO_RegisterBits size_bits = 
-    Adafruit_BusIO_RegisterBits(&i2s_reg, 2, 0);
+
+  Adafruit_BusIO_Register i2s_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_I2S_CONFIG, 1);
+  Adafruit_BusIO_RegisterBits size_bits =
+      Adafruit_BusIO_RegisterBits(&i2s_reg, 2, 0);
 
   return (pcm51xx_i2s_size_t)size_bits.read();
 }
@@ -303,11 +303,11 @@ bool Adafruit_PCM51xx::setPLLReference(pcm51xx_pll_ref_t ref) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register pll_ref_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL_REF, 1);
-  Adafruit_BusIO_RegisterBits ref_bits = 
-    Adafruit_BusIO_RegisterBits(&pll_ref_reg, 3, 4);
+
+  Adafruit_BusIO_Register pll_ref_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL_REF, 1);
+  Adafruit_BusIO_RegisterBits ref_bits =
+      Adafruit_BusIO_RegisterBits(&pll_ref_reg, 3, 4);
 
   return ref_bits.write((uint8_t)ref);
 }
@@ -320,11 +320,11 @@ pcm51xx_pll_ref_t Adafruit_PCM51xx::getPLLReference(void) {
   if (!selectPage(0)) {
     return PCM51XX_PLL_REF_SCK;
   }
-  
-  Adafruit_BusIO_Register pll_ref_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL_REF, 1);
-  Adafruit_BusIO_RegisterBits ref_bits = 
-    Adafruit_BusIO_RegisterBits(&pll_ref_reg, 3, 4);
+
+  Adafruit_BusIO_Register pll_ref_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL_REF, 1);
+  Adafruit_BusIO_RegisterBits ref_bits =
+      Adafruit_BusIO_RegisterBits(&pll_ref_reg, 3, 4);
 
   return (pcm51xx_pll_ref_t)ref_bits.read();
 }
@@ -339,21 +339,21 @@ bool Adafruit_PCM51xx::setVolumeDB(float leftDB, float rightDB) {
   if (!selectPage(0)) {
     return false;
   }
-  
+
   // Convert dB to register values (0.5dB steps, 0x00 = 24dB, 0xFF = -103.5dB)
   // Formula: regVal = (24.0 - dB) / 0.5
   uint8_t leftVal = (uint8_t)constrain((24.0 - leftDB) / 0.5, 0, 255);
   uint8_t rightVal = (uint8_t)constrain((24.0 - rightDB) / 0.5, 0, 255);
-  
-  Adafruit_BusIO_Register left_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DIGITAL_VOLUME_L, 1);
-  Adafruit_BusIO_Register right_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DIGITAL_VOLUME_R, 1);
-  
+
+  Adafruit_BusIO_Register left_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DIGITAL_VOLUME_L, 1);
+  Adafruit_BusIO_Register right_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DIGITAL_VOLUME_R, 1);
+
   if (!left_reg.write(leftVal)) {
     return false;
   }
-  
+
   return right_reg.write(rightVal);
 }
 
@@ -362,21 +362,21 @@ bool Adafruit_PCM51xx::setVolumeDB(float leftDB, float rightDB) {
  * @param leftDB Pointer to store left channel volume in dB
  * @param rightDB Pointer to store right channel volume in dB
  */
-void Adafruit_PCM51xx::getVolumeDB(float *leftDB, float *rightDB) {
+void Adafruit_PCM51xx::getVolumeDB(float* leftDB, float* rightDB) {
   if (!selectPage(0)) {
     *leftDB = 0.0;
     *rightDB = 0.0;
     return;
   }
-  
-  Adafruit_BusIO_Register left_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DIGITAL_VOLUME_L, 1);
-  Adafruit_BusIO_Register right_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DIGITAL_VOLUME_R, 1);
-  
+
+  Adafruit_BusIO_Register left_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DIGITAL_VOLUME_L, 1);
+  Adafruit_BusIO_Register right_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DIGITAL_VOLUME_R, 1);
+
   uint8_t leftVal = left_reg.read();
   uint8_t rightVal = right_reg.read();
-  
+
   // Convert register values back to dB
   // Formula: dB = 24.0 - (regVal * 0.5)
   *leftDB = 24.0 - (leftVal * 0.5);
@@ -391,11 +391,11 @@ bool Adafruit_PCM51xx::getDSPBootDone(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register power_state_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_POWER_STATE, 1);
-  Adafruit_BusIO_RegisterBits boot_done_bit = 
-    Adafruit_BusIO_RegisterBits(&power_state_reg, 1, 7);
+
+  Adafruit_BusIO_Register power_state_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_POWER_STATE, 1);
+  Adafruit_BusIO_RegisterBits boot_done_bit =
+      Adafruit_BusIO_RegisterBits(&power_state_reg, 1, 7);
 
   return boot_done_bit.read() == 1;
 }
@@ -408,11 +408,11 @@ pcm51xx_power_state_t Adafruit_PCM51xx::getPowerState(void) {
   if (!selectPage(0)) {
     return PCM51XX_POWER_POWERDOWN;
   }
-  
-  Adafruit_BusIO_Register power_state_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_POWER_STATE, 1);
-  Adafruit_BusIO_RegisterBits power_state_bits = 
-    Adafruit_BusIO_RegisterBits(&power_state_reg, 4, 0);
+
+  Adafruit_BusIO_Register power_state_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_POWER_STATE, 1);
+  Adafruit_BusIO_RegisterBits power_state_bits =
+      Adafruit_BusIO_RegisterBits(&power_state_reg, 4, 0);
 
   return (pcm51xx_power_state_t)power_state_bits.read();
 }
@@ -426,11 +426,11 @@ bool Adafruit_PCM51xx::ignoreFSDetect(bool ignore) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register error_detect_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
-  Adafruit_BusIO_RegisterBits idfs_bit = 
-    Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 6);
+
+  Adafruit_BusIO_Register error_detect_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
+  Adafruit_BusIO_RegisterBits idfs_bit =
+      Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 6);
 
   return idfs_bit.write(ignore ? 1 : 0);
 }
@@ -444,11 +444,11 @@ bool Adafruit_PCM51xx::ignoreBCKDetect(bool ignore) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register error_detect_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
-  Adafruit_BusIO_RegisterBits idbk_bit = 
-    Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 5);
+
+  Adafruit_BusIO_Register error_detect_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
+  Adafruit_BusIO_RegisterBits idbk_bit =
+      Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 5);
 
   return idbk_bit.write(ignore ? 1 : 0);
 }
@@ -462,11 +462,11 @@ bool Adafruit_PCM51xx::ignoreSCKDetect(bool ignore) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register error_detect_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
-  Adafruit_BusIO_RegisterBits idsk_bit = 
-    Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 4);
+
+  Adafruit_BusIO_Register error_detect_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
+  Adafruit_BusIO_RegisterBits idsk_bit =
+      Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 4);
 
   return idsk_bit.write(ignore ? 1 : 0);
 }
@@ -480,11 +480,11 @@ bool Adafruit_PCM51xx::ignoreClockHalt(bool ignore) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register error_detect_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
-  Adafruit_BusIO_RegisterBits idch_bit = 
-    Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 3);
+
+  Adafruit_BusIO_Register error_detect_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
+  Adafruit_BusIO_RegisterBits idch_bit =
+      Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 3);
 
   return idch_bit.write(ignore ? 1 : 0);
 }
@@ -498,11 +498,11 @@ bool Adafruit_PCM51xx::ignoreClockMissing(bool ignore) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register error_detect_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
-  Adafruit_BusIO_RegisterBits idcm_bit = 
-    Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 2);
+
+  Adafruit_BusIO_Register error_detect_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
+  Adafruit_BusIO_RegisterBits idcm_bit =
+      Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 2);
 
   return idcm_bit.write(ignore ? 1 : 0);
 }
@@ -516,11 +516,11 @@ bool Adafruit_PCM51xx::disableClockAutoset(bool disable) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register error_detect_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
-  Adafruit_BusIO_RegisterBits dcas_bit = 
-    Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 1);
+
+  Adafruit_BusIO_Register error_detect_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
+  Adafruit_BusIO_RegisterBits dcas_bit =
+      Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 1);
 
   return dcas_bit.write(disable ? 1 : 0);
 }
@@ -534,11 +534,11 @@ bool Adafruit_PCM51xx::ignorePLLUnlock(bool ignore) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register error_detect_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
-  Adafruit_BusIO_RegisterBits iplk_bit = 
-    Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 0);
+
+  Adafruit_BusIO_Register error_detect_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_ERROR_DETECT, 1);
+  Adafruit_BusIO_RegisterBits iplk_bit =
+      Adafruit_BusIO_RegisterBits(&error_detect_reg, 1, 0);
 
   return iplk_bit.write(ignore ? 1 : 0);
 }
@@ -552,11 +552,11 @@ bool Adafruit_PCM51xx::setDACSource(pcm51xx_dac_clk_src_t source) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register dac_clk_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DAC_CLK_SRC, 1);
-  Adafruit_BusIO_RegisterBits sdac_bits = 
-    Adafruit_BusIO_RegisterBits(&dac_clk_reg, 3, 4);
+
+  Adafruit_BusIO_Register dac_clk_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DAC_CLK_SRC, 1);
+  Adafruit_BusIO_RegisterBits sdac_bits =
+      Adafruit_BusIO_RegisterBits(&dac_clk_reg, 3, 4);
 
   return sdac_bits.write((uint8_t)source);
 }
@@ -569,11 +569,11 @@ pcm51xx_dac_clk_src_t Adafruit_PCM51xx::getDACSource(void) {
   if (!selectPage(0)) {
     return PCM51XX_DAC_CLK_MASTER;
   }
-  
-  Adafruit_BusIO_Register dac_clk_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DAC_CLK_SRC, 1);
-  Adafruit_BusIO_RegisterBits sdac_bits = 
-    Adafruit_BusIO_RegisterBits(&dac_clk_reg, 3, 4);
+
+  Adafruit_BusIO_Register dac_clk_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DAC_CLK_SRC, 1);
+  Adafruit_BusIO_RegisterBits sdac_bits =
+      Adafruit_BusIO_RegisterBits(&dac_clk_reg, 3, 4);
 
   return (pcm51xx_dac_clk_src_t)sdac_bits.read();
 }
@@ -587,11 +587,11 @@ bool Adafruit_PCM51xx::setAutoMute(bool enable) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register auto_mute_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_AUTO_MUTE, 1);
-  Adafruit_BusIO_RegisterBits auto_mute_bits = 
-    Adafruit_BusIO_RegisterBits(&auto_mute_reg, 3, 0);
+
+  Adafruit_BusIO_Register auto_mute_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_AUTO_MUTE, 1);
+  Adafruit_BusIO_RegisterBits auto_mute_bits =
+      Adafruit_BusIO_RegisterBits(&auto_mute_reg, 3, 0);
 
   return auto_mute_bits.write(enable ? 0x7 : 0x0);
 }
@@ -604,11 +604,11 @@ bool Adafruit_PCM51xx::getAutoMute(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register auto_mute_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_AUTO_MUTE, 1);
-  Adafruit_BusIO_RegisterBits auto_mute_bits = 
-    Adafruit_BusIO_RegisterBits(&auto_mute_reg, 3, 0);
+
+  Adafruit_BusIO_Register auto_mute_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_AUTO_MUTE, 1);
+  Adafruit_BusIO_RegisterBits auto_mute_bits =
+      Adafruit_BusIO_RegisterBits(&auto_mute_reg, 3, 0);
 
   uint8_t value = auto_mute_bits.read();
   return (value == 0x7);
@@ -623,19 +623,19 @@ bool Adafruit_PCM51xx::mute(bool enable) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register mute_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_MUTE, 1);
-  Adafruit_BusIO_RegisterBits rqml_bit = 
-    Adafruit_BusIO_RegisterBits(&mute_reg, 1, 4);
-  Adafruit_BusIO_RegisterBits rqmr_bit = 
-    Adafruit_BusIO_RegisterBits(&mute_reg, 1, 0);
+
+  Adafruit_BusIO_Register mute_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_MUTE, 1);
+  Adafruit_BusIO_RegisterBits rqml_bit =
+      Adafruit_BusIO_RegisterBits(&mute_reg, 1, 4);
+  Adafruit_BusIO_RegisterBits rqmr_bit =
+      Adafruit_BusIO_RegisterBits(&mute_reg, 1, 0);
 
   // Set both left (bit 4) and right (bit 0) mute bits
   if (!rqml_bit.write(enable ? 1 : 0)) {
     return false;
   }
-  
+
   return rqmr_bit.write(enable ? 1 : 0);
 }
 
@@ -647,13 +647,13 @@ bool Adafruit_PCM51xx::isMuted(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register mute_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_MUTE, 1);
-  Adafruit_BusIO_RegisterBits rqml_bit = 
-    Adafruit_BusIO_RegisterBits(&mute_reg, 1, 4);
-  Adafruit_BusIO_RegisterBits rqmr_bit = 
-    Adafruit_BusIO_RegisterBits(&mute_reg, 1, 0);
+
+  Adafruit_BusIO_Register mute_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_MUTE, 1);
+  Adafruit_BusIO_RegisterBits rqml_bit =
+      Adafruit_BusIO_RegisterBits(&mute_reg, 1, 4);
+  Adafruit_BusIO_RegisterBits rqmr_bit =
+      Adafruit_BusIO_RegisterBits(&mute_reg, 1, 0);
 
   // Both channels must be muted to return true
   return (rqml_bit.read() == 1) && (rqmr_bit.read() == 1);
@@ -668,11 +668,11 @@ bool Adafruit_PCM51xx::enablePLL(bool enable) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register pll_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
-  Adafruit_BusIO_RegisterBits plle_bit = 
-    Adafruit_BusIO_RegisterBits(&pll_reg, 1, 0);
+
+  Adafruit_BusIO_Register pll_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
+  Adafruit_BusIO_RegisterBits plle_bit =
+      Adafruit_BusIO_RegisterBits(&pll_reg, 1, 0);
 
   return plle_bit.write(enable ? 1 : 0);
 }
@@ -685,11 +685,11 @@ bool Adafruit_PCM51xx::isPLLEnabled(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register pll_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
-  Adafruit_BusIO_RegisterBits plle_bit = 
-    Adafruit_BusIO_RegisterBits(&pll_reg, 1, 0);
+
+  Adafruit_BusIO_Register pll_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
+  Adafruit_BusIO_RegisterBits plle_bit =
+      Adafruit_BusIO_RegisterBits(&pll_reg, 1, 0);
 
   return plle_bit.read() == 1;
 }
@@ -702,13 +702,13 @@ bool Adafruit_PCM51xx::isPLLLocked(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register pll_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
-  Adafruit_BusIO_RegisterBits pllk_bit = 
-    Adafruit_BusIO_RegisterBits(&pll_reg, 1, 4);
 
-  return pllk_bit.read() == 0;  // 0 = locked, 1 = not locked
+  Adafruit_BusIO_Register pll_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PLL, 1);
+  Adafruit_BusIO_RegisterBits pllk_bit =
+      Adafruit_BusIO_RegisterBits(&pll_reg, 1, 4);
+
+  return pllk_bit.read() == 0; // 0 = locked, 1 = not locked
 }
 
 /*!
@@ -720,11 +720,11 @@ bool Adafruit_PCM51xx::enableDeemphasis(bool enable) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register deemphasis_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DEEMPHASIS, 1);
-  Adafruit_BusIO_RegisterBits demp_bit = 
-    Adafruit_BusIO_RegisterBits(&deemphasis_reg, 1, 4);
+
+  Adafruit_BusIO_Register deemphasis_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DEEMPHASIS, 1);
+  Adafruit_BusIO_RegisterBits demp_bit =
+      Adafruit_BusIO_RegisterBits(&deemphasis_reg, 1, 4);
 
   return demp_bit.write(enable ? 1 : 0);
 }
@@ -737,11 +737,11 @@ bool Adafruit_PCM51xx::isDeemphasized(void) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register deemphasis_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DEEMPHASIS, 1);
-  Adafruit_BusIO_RegisterBits demp_bit = 
-    Adafruit_BusIO_RegisterBits(&deemphasis_reg, 1, 4);
+
+  Adafruit_BusIO_Register deemphasis_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_DEEMPHASIS, 1);
+  Adafruit_BusIO_RegisterBits demp_bit =
+      Adafruit_BusIO_RegisterBits(&deemphasis_reg, 1, 4);
 
   return demp_bit.read() == 1;
 }
@@ -753,19 +753,89 @@ bool Adafruit_PCM51xx::isDeemphasized(void) {
  */
 bool Adafruit_PCM51xx::digitalRead(uint8_t pin) {
   if (pin < 1 || pin > 6) {
-    return false;  // Invalid pin number
+    return false; // Invalid pin number
   }
-  
+
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register gpio_input_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_GPIO_INPUT, 1);
-  Adafruit_BusIO_RegisterBits gpio_bit = 
-    Adafruit_BusIO_RegisterBits(&gpio_input_reg, 1, pin - 1);
+
+  Adafruit_BusIO_Register gpio_input_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_GPIO_INPUT, 1);
+  Adafruit_BusIO_RegisterBits gpio_bit =
+      Adafruit_BusIO_RegisterBits(&gpio_input_reg, 1, pin - 1);
 
   return gpio_bit.read() == 1;
+}
+
+/*!
+ * @brief Enable or disable VCOM mode
+ * @param enable True to enable VCOM mode, false for VREF mode
+ * @return True if successful, false otherwise
+ */
+bool Adafruit_PCM51xx::enableVCOM(bool enable) {
+  if (!selectPage(1)) {
+    return false;
+  }
+
+  Adafruit_BusIO_Register output_amp_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PAGE1_OUTPUT_AMP_TYPE, 1);
+  Adafruit_BusIO_RegisterBits osel_bit =
+      Adafruit_BusIO_RegisterBits(&output_amp_reg, 1, 0);
+
+  return osel_bit.write(enable ? 1 : 0);
+}
+
+/*!
+ * @brief Check if VCOM mode is enabled
+ * @return True if VCOM mode is enabled, false if VREF mode
+ */
+bool Adafruit_PCM51xx::isVCOMEnabled(void) {
+  if (!selectPage(1)) {
+    return false;
+  }
+
+  Adafruit_BusIO_Register output_amp_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PAGE1_OUTPUT_AMP_TYPE, 1);
+  Adafruit_BusIO_RegisterBits osel_bit =
+      Adafruit_BusIO_RegisterBits(&output_amp_reg, 1, 0);
+
+  return osel_bit.read() == 1;
+}
+
+/*!
+ * @brief Set VCOM power state
+ * @param enable True to power on VCOM, false to power down
+ * @return True if successful, false otherwise
+ */
+bool Adafruit_PCM51xx::setVCOMPower(bool enable) {
+  if (!selectPage(1)) {
+    return false;
+  }
+
+  Adafruit_BusIO_Register vcom_power_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PAGE1_VCOM_POWER, 1);
+  Adafruit_BusIO_RegisterBits vcpd_bit =
+      Adafruit_BusIO_RegisterBits(&vcom_power_reg, 1, 0);
+
+  return vcpd_bit.write(enable ? 0 : 1); // 0 = powered on, 1 = powered down
+}
+
+/*!
+ * @brief Check if VCOM is powered
+ * @return True if VCOM is powered on, false if powered down
+ */
+bool Adafruit_PCM51xx::isVCOMPowered(void) {
+  if (!selectPage(1)) {
+    return false;
+  }
+
+  Adafruit_BusIO_Register vcom_power_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PAGE1_VCOM_POWER, 1);
+  Adafruit_BusIO_RegisterBits vcpd_bit =
+      Adafruit_BusIO_RegisterBits(&vcom_power_reg, 1, 0);
+
+  return vcpd_bit.read() == 0; // 0 = powered on, 1 = powered down
 }
 
 // TODO: GPIO functions - implement later
@@ -774,10 +844,10 @@ bool Adafruit_PCM51xx::setGPIO5Output(pcm51xx_gpio5_output_t output) {
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register gpio5_reg = 
+
+  Adafruit_BusIO_Register gpio5_reg =
     Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_GPIO5_OUTPUT, 1);
-  Adafruit_BusIO_RegisterBits gpio5_bits = 
+  Adafruit_BusIO_RegisterBits gpio5_bits =
     Adafruit_BusIO_RegisterBits(&gpio5_reg, 5, 0);
 
   return gpio5_bits.write((uint8_t)output);
@@ -787,10 +857,10 @@ pcm51xx_gpio5_output_t Adafruit_PCM51xx::getGPIO5Output(void) {
   if (!selectPage(0)) {
     return PCM51XX_GPIO5_OFF;
   }
-  
-  Adafruit_BusIO_Register gpio5_reg = 
+
+  Adafruit_BusIO_Register gpio5_reg =
     Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_GPIO5_OUTPUT, 1);
-  Adafruit_BusIO_RegisterBits gpio5_bits = 
+  Adafruit_BusIO_RegisterBits gpio5_bits =
     Adafruit_BusIO_RegisterBits(&gpio5_reg, 5, 0);
 
   return (pcm51xx_gpio5_output_t)gpio5_bits.read();
@@ -800,14 +870,14 @@ bool Adafruit_PCM51xx::setGPIODirection(uint8_t gpio, bool output) {
   if (gpio < 1 || gpio > 6) {
     return false;
   }
-  
+
   if (!selectPage(0)) {
     return false;
   }
-  
-  Adafruit_BusIO_Register gpio_enable_reg = 
+
+  Adafruit_BusIO_Register gpio_enable_reg =
     Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_GPIO_ENABLE, 1);
-  Adafruit_BusIO_RegisterBits gpio_bit = 
+  Adafruit_BusIO_RegisterBits gpio_bit =
     Adafruit_BusIO_RegisterBits(&gpio_enable_reg, 1, gpio - 1);
 
   return gpio_bit.write(output ? 1 : 0);
@@ -823,10 +893,10 @@ bool Adafruit_PCM51xx::selectPage(uint8_t page) {
   if (_page == page) {
     return true; // Already on correct page, skip I2C write
   }
-  
-  Adafruit_BusIO_Register page_reg = 
-    Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PAGE_SELECT, 1);
-  
+
+  Adafruit_BusIO_Register page_reg =
+      Adafruit_BusIO_Register(i2c_dev, PCM51XX_REG_PAGE_SELECT, 1);
+
   if (page_reg.write(page)) {
     _page = page; // Update cached page on successful write
     return true;
