@@ -26,7 +26,7 @@ void setup() {
   
   Serial.println(F("PCM51xx initialized successfully!"));
 
-  // Set I2S bit width to 24-bit
+  // Set I2S bit width to 24-bit (options: 16BIT, 20BIT, 24BIT, 32BIT)
   Serial.println(F("Setting I2S to 24-bit"));
   pcm.setI2SSize(PCM51XX_I2S_SIZE_24BIT);
   
