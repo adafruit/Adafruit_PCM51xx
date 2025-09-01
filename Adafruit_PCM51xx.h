@@ -29,8 +29,8 @@
 #include <Adafruit_BusIO_Register.h>
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_SPIDevice.h>
-#include <Wire.h>
 #include <SPI.h>
+#include <Wire.h>
 
 #include "Arduino.h"
 
