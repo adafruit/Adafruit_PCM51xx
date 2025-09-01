@@ -1,26 +1,7 @@
 /*!
  * @file Adafruit_PCM51xx.h
  *
- * @mainpage Adafruit PCM51xx library
- *
- * @section intro_sec Introduction
- *
- * This is the library for the Adafruit PCM51xx breakout
- * ----> http://www.adafruit.com/
- *
- * Adafruit invests time and resources providing this open source code,
- * please support Adafruit and open-source hardware by purchasing
- * products from Adafruit!
- *
- * @section author Author
- *
- * Written by Limor 'ladyada' Fried with assistance from Claude Code
- * for Adafruit Industries.
- *
- * @section license License
- *
- * MIT license, all text here must be included in any redistribution.
- *
+ * Header file for Adafruit PCM51xx library
  */
 
 #ifndef _ADAFRUIT_PCM51XX_H
