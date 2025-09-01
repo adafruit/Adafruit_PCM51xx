@@ -20,10 +20,23 @@ void setup() {
 
   Serial.println(F("Adafruit PCM51xx Test"));
 
+  // I2C mode (default)
   if (!pcm.begin()) {
     Serial.println(F("Could not find PCM51xx, check wiring!"));
     while (1) delay(10);
   }
+  
+  // Hardware SPI mode (uncomment to use)
+  // if (!pcm.begin(10, &SPI)) {  // CS pin 10
+  //   Serial.println(F("Could not find PCM51xx over SPI, check wiring!"));
+  //   while (1) delay(10);
+  // }
+  
+  // Software SPI mode (uncomment to use)  
+  // if (!pcm.begin(10, 11, 12, 13)) {  // CS, MOSI, MISO, SCLK
+  //   Serial.println(F("Could not find PCM51xx over software SPI, check wiring!"));
+  //   while (1) delay(10);
+  // }
   
   Serial.println(F("PCM51xx initialized successfully!"));
 

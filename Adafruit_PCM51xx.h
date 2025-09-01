@@ -28,7 +28,9 @@
 
 #include <Adafruit_BusIO_Register.h>
 #include <Adafruit_I2CDevice.h>
+#include <Adafruit_SPIDevice.h>
 #include <Wire.h>
+#include <SPI.h>
 
 #include "Arduino.h"
 
@@ -173,6 +175,8 @@ class Adafruit_PCM51xx {
   ~Adafruit_PCM51xx(void);
 
   bool begin(uint8_t i2c_addr = PCM51XX_DEFAULT_ADDR, TwoWire* wire = &Wire);
+  bool begin(int8_t cs_pin, SPIClass* theSPI);
+  bool begin(int8_t cs_pin, int8_t mosi_pin, int8_t miso_pin, int8_t sclk_pin);
 
   bool resetModules(void);
   bool resetRegisters(void);
@@ -234,7 +238,9 @@ class Adafruit_PCM51xx {
 
  private:
   bool selectPage(uint8_t page);
+  bool _init(void);
   Adafruit_I2CDevice* i2c_dev; ///< Pointer to I2C bus interface
+  Adafruit_SPIDevice* spi_dev; ///< Pointer to SPI bus interface
   uint8_t _page;               ///< Current selected page (cached)
 };
 
