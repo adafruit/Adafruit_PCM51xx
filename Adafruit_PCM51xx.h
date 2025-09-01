@@ -231,10 +231,10 @@ class Adafruit_PCM51xx {
   bool setVCOMPower(bool enable);
   bool isVCOMPowered(void);
 
-  // TODO: GPIO functions - implement later
-  // bool setGPIO5Output(pcm51xx_gpio5_output_t output);
-  // pcm51xx_gpio5_output_t getGPIO5Output(void);
-  // bool setGPIODirection(uint8_t gpio, bool output);
+  bool setGPIO5Output(pcm51xx_gpio5_output_t output);
+  pcm51xx_gpio5_output_t getGPIO5Output(void);
+  bool setGPIODirection(uint8_t gpio, bool output);
+  bool setGPIORegisterOutput(uint8_t gpio, bool high);
 
  private:
   bool selectPage(uint8_t page);

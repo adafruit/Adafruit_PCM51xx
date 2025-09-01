@@ -905,8 +905,11 @@ bool Adafruit_PCM51xx::isVCOMPowered(void) {
   return vcpd_bit.read() == 0; // 0 = powered on, 1 = powered down
 }
 
-// TODO: GPIO functions - implement later
-/*
+/*!
+ * @brief Set GPIO5 output function
+ * @param output GPIO5 output selection  
+ * @return True if successful, false otherwise
+ */
 bool Adafruit_PCM51xx::setGPIO5Output(pcm51xx_gpio5_output_t output) {
   if (!selectPage(0)) {
     return false;
@@ -920,6 +923,10 @@ bool Adafruit_PCM51xx::setGPIO5Output(pcm51xx_gpio5_output_t output) {
   return gpio5_bits.write((uint8_t)output);
 }
 
+/*!
+ * @brief Get GPIO5 output function
+ * @return Current GPIO5 output selection
+ */
 pcm51xx_gpio5_output_t Adafruit_PCM51xx::getGPIO5Output(void) {
   if (!selectPage(0)) {
     return PCM51XX_GPIO5_OFF;
@@ -933,6 +940,12 @@ pcm51xx_gpio5_output_t Adafruit_PCM51xx::getGPIO5Output(void) {
   return (pcm51xx_gpio5_output_t)gpio5_bits.read();
 }
 
+/*!
+ * @brief Set GPIO direction (input/output)
+ * @param gpio GPIO pin number (1-6)
+ * @param output True for output, false for input
+ * @return True if successful, false otherwise
+ */
 bool Adafruit_PCM51xx::setGPIODirection(uint8_t gpio, bool output) {
   if (gpio < 1 || gpio > 6) {
     return false;
@@ -949,7 +962,28 @@ bool Adafruit_PCM51xx::setGPIODirection(uint8_t gpio, bool output) {
 
   return gpio_bit.write(output ? 1 : 0);
 }
-*/
+
+/*!
+ * @brief Set GPIO register output value (when in register output mode)
+ * @param gpio GPIO pin number (1-6)
+ * @param high True for high, false for low
+ * @return True if successful, false otherwise
+ */
+bool Adafruit_PCM51xx::setGPIORegisterOutput(uint8_t gpio, bool high) {
+  if (gpio < 1 || gpio > 6) {
+    return false;
+  }
+  if (!selectPage(0)) {
+    return false;
+  }
+
+  Adafruit_BusIO_Register gpio_control_reg =
+    Adafruit_BusIO_Register(i2c_dev, spi_dev, ADDRBIT8_HIGH_TOREAD, PCM51XX_REG_GPIO_CONTROL, 1);
+  Adafruit_BusIO_RegisterBits gpio_bit =
+    Adafruit_BusIO_RegisterBits(&gpio_control_reg, 1, gpio - 1);
+
+  return gpio_bit.write(high ? 1 : 0);
+}
 
 /*!
  * @brief Select register page
