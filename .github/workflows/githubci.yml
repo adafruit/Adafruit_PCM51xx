@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2017 Scott Shawcroft, written for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
+name: Arduino Library CI
+
+on: [pull_request, push, repository_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    - uses: actions/checkout@v4
+      with:
+        repository: adafruit/ci-arduino
+        path: ci
+
+    - name: pre-install
+      run: bash ci/actions_install.sh
+
+    - name: clang
+      run: python3 ci/run-clang-format.py -e "ci/*" -e "bin/*" -r .
+
+    - name: test platforms
+      run: python3 ci/build_platform.py main_platforms
+
+    - name: doxygen
+      env:
+        GH_REPO_TOKEN: ${{ secrets.GH_REPO_TOKEN }}
+        PRETTYNAME : "Adafruit PCM51xx Arduino Library"
+      run: bash ci/doxy_gen_and_deploy.sh

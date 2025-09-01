@@ -1,0 +1,2 @@
+# This test is only compatible with Arduino Uno
+# Timer1 configuration is specific to ATmega328P
