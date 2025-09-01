@@ -156,6 +156,15 @@ bool Adafruit_PCM51xx::_init(void) {
     return false;
   }
 
+  // Configure error detection and default settings
+  if (!ignoreFSDetect(true) || !ignoreBCKDetect(true) || !ignoreSCKDetect(true) || 
+      !ignoreClockHalt(true) || !ignoreClockMissing(true) || !disableClockAutoset(false) || 
+      !ignorePLLUnlock(true) || !enablePLL(true) || !setPLLReference(PCM51XX_PLL_REF_BCK) ||
+      !setDACSource(PCM51XX_DAC_CLK_PLL) || !setI2SFormat(PCM51XX_I2S_FORMAT_I2S) ||
+      !setI2SSize(PCM51XX_I2S_SIZE_16BIT) || !setAutoMute(false) || !mute(true)) {
+    return false;
+  }
+
   return true;
 }
 
